@@ -201,8 +201,6 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, Plugin
         adapter.init(context)
 
         bluetoothService = BluetoothService.getInstance(bluetoothHandler)
-        bluetoothService.setHandler(bluetoothHandler)
-        bluetoothService.setActivity(currentActivity)
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -271,9 +269,7 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, Plugin
                 }
             }
             call.method.equals("getList") -> {
-                if(this::bluetoothService.isInitialized){
-                    bluetoothService.cleanHandlerBtBle()
-                }
+                bluetoothService.cleanHandlerBtBle()
                 getUSBDeviceList(result)
             }
             call.method.equals("connectPrinter") -> {
@@ -366,13 +362,10 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, Plugin
     }
 
     private fun printBytes(bytes: ArrayList<Int>?, result: Result) {
-        android.util.Log.d(TAG, "printBytes: bytes===========> ${bytes}")
-        if (bytes == null){
-            result.success(false)
-        } else{
-            adapter.setHandler(usbHandler)
-            result.success(adapter.printBytes(bytes))
-        }
+        if (bytes == null) return
+        adapter.setHandler(usbHandler)
+        adapter.printBytes(bytes)
+        result.success(true)
     }
 
     private fun checkPermissions(): Boolean {
